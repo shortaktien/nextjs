@@ -1,90 +1,61 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { ethers } from 'ethers';
-import { useLocalStorage } from 'react-use';
 
 export default function LoginPage() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [provider, setProvider] = useState(null);
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
-  const [account, setAccount] = useLocalStorage('account', null);
-  const [networkCorrect, setNetworkCorrect] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (account && networkCorrect) {
-      router.push('/start');
-    }
-  }, [account, networkCorrect, router]);
+    setIsMounted(true);
+  }, []);
 
-  const connectIOTA = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const newProvider = new ethers.providers.Web3Provider(window.ethereum);
-        await newProvider.send('eth_requestAccounts', []);
-        const signer = newProvider.getSigner();
-        const userAddress = await signer.getAddress();
-        
-        // Überprüfen, ob der Benutzer im richtigen Netzwerk ist
-        const network = await newProvider.getNetwork();
-        if (network.chainId !== 1075) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x433' }], // 1075 in Hex
-            });
-            setNetworkCorrect(true);
-          } catch (switchError) {
-            if (switchError.code === 4902) {
-              try {
-                await window.ethereum.request({
-                  method: 'wallet_addEthereumChain',
-                  params: [
-                    {
-                      chainId: '0x433', // 1075 in Hex
-                      chainName: 'IOTA EVM Testnet',
-                      rpcUrls: ['https://json-rpc.evm.testnet.iotaledger.net'],
-                      nativeCurrency: {
-                        name: 'IOTA',
-                        symbol: 'IOTA',
-                        decimals: 18,
-                      },
-                      blockExplorerUrls: ['https://explorer.evm.testnet.iotaledger.net'],
-                    },
-                  ],
-                });
-                setNetworkCorrect(true);
-              } catch (addError) {
-                console.error('Error adding IOTA network:', addError);
-              }
-            } else {
-              console.error('Error switching network:', switchError);
-            }
-          }
-        } else {
-          setNetworkCorrect(true);
-        }
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+  };
 
-        setProvider(newProvider);
-        setAccount(userAddress);
-        setIsConnected(true);
-        if (networkCorrect) {
-          router.push('/start');
-        }
-      } catch (error) {
-        console.error('Error connecting to IOTA:', error.message);
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/api/save-username', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      });
+
+      if (response.ok) {
+        localStorage.setItem('username', username);
+        router.push('/start');
+      } else {
+        const data = await response.json();
+        setError(data.error);
       }
-    } else {
-      console.error('MetaMask is not installed');
+    } catch (error) {
+      console.error('Error saving username:', error);
+      setError('Error saving username');
     }
   };
 
+  if (!isMounted) {
+    return null; // oder ein Loading Spinner
+  }
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-      <h1>Login with IOTA</h1>
-      <button onClick={connectIOTA} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        Connect to IOTA
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="Enter your username"
+        value={username}
+        onChange={handleUsernameChange}
+        style={{ padding: '10px', marginBottom: '10px', fontSize: '16px' }}
+      />
+      <button onClick={handleLogin} style={{ padding: '10px 20px', fontSize: '16px' }}>
+        Login
       </button>
-      {isConnected && !networkCorrect && <p>Please switch to the IOTA EVM Testnet in MetaMask.</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }
