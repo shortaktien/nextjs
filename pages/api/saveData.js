@@ -1,4 +1,7 @@
 import { sql } from '@vercel/postgres';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Laden der Umgebungsvariablen
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,19 +15,30 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Attempting to insert username:', username);
-    const result = await sql`INSERT INTO users (username) VALUES (${username}) RETURNING id`;
+    console.log(`Attempting to find or insert username: ${username}`);
+    const currentTime = new Date().toISOString();
 
-    if (result.rowCount > 0) {
-      const userId = result.rows[0].id;
-      console.log('User inserted with ID:', userId);
-      return res.status(200).json({ userId });
+    // Überprüfen, ob der Benutzer bereits existiert
+    const userResult = await sql`SELECT id FROM users WHERE username = ${username}`;
+    
+    let userId;
+    if (userResult.length > 0) {
+      userId = userResult[0].id;
+      // Aktualisieren des letzten Login-Datums
+      await sql`UPDATE users SET last_login = ${currentTime} WHERE id = ${userId}`;
     } else {
-      console.error('Insert operation did not return any result:', result);
-      return res.status(500).json({ error: 'Failed to save username' });
+      // Benutzer anlegen und das Login-Datum setzen
+      const result = await sql`
+        INSERT INTO users (username, last_login) 
+        VALUES (${username}, ${currentTime}) 
+        RETURNING id
+      `;
+      userId = result[0].id;
     }
+
+    return res.status(200).json({ userId });
   } catch (error) {
     console.error('Error details:', error);
-    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

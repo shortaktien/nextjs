@@ -1,14 +1,17 @@
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import Header from './header'; 
+import { useResourcesContext } from '../components/useResources';
 
-export default function StartPage() {
+const StartPage = () => {
   const router = useRouter();
-  const { userId } = router.query;
+  const { resources } = useResourcesContext();
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchUsername = async () => {
+      const userId = router.query.userId;
       if (userId) {
         try {
           const response = await fetch(`/api/loadData?userId=${userId}`);
@@ -17,11 +20,9 @@ export default function StartPage() {
             setUsername(data.username);
           } else {
             const errorText = await response.text();
-            console.error('Error response:', errorText);
             setError(errorText);
           }
         } catch (error) {
-          console.error('Error fetching username:', error);
           setError('Error fetching username');
         }
       } else {
@@ -29,13 +30,18 @@ export default function StartPage() {
       }
     };
     fetchUsername();
-  }, [userId, router]);
+  }, [router.query.userId, router]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-      <h1>Welcome to the Start Page</h1>
-      {username && <p>Username: {username}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div>
+      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
+        <h1>Welcome to the Start Page</h1>
+        {username && <p>Username: {username}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+      </div>
     </div>
   );
-}
+};
+
+export default StartPage;

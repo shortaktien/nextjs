@@ -1,56 +1,47 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 export default function LoginPage() {
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleMetaMaskLogin = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const address = accounts[0];
-        console.log('Connected address:', address);
+    try {
+      const response = await fetch('/api/saveData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      });
 
-        const response = await fetch('/api/saveData', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username: address }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          router.push(`/start?userId=${data.userId}`); // Weiterleiten zur Startseite mit Benutzer-ID als Query-Parameter
-        } else {
-          const errorText = await response.text();
-          console.error('Error response:', errorText);
-          setError(errorText); // Fehler anzeigen
-        }
-      } catch (error) {
-        console.error('Error connecting to MetaMask:', error);
-        setError('Error connecting to MetaMask');
+      if (response.ok) {
+        const data = await response.json();
+        router.push(`/start?userId=${data.userId}`);
+      } else {
+        const errorText = await response.text();
+        setError(errorText);
+        console.error('Error response:', errorText);
       }
-    } else {
-      setError('MetaMask is not installed');
+    } catch (error) {
+      console.error('Error saving username:', error);
+      setError('Error saving username');
     }
   };
 
-  if (!isMounted) {
-    return null; // oder ein Loading Spinner
-  }
-
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-      <h1>Login with MetaMask</h1>
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="Enter your username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        style={{ padding: '10px', marginBottom: '10px', fontSize: '16px' }}
+      />
       <button onClick={handleMetaMaskLogin} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        Login with MetaMask
+        Login
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
