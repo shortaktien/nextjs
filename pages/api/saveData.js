@@ -1,4 +1,4 @@
-import { sql } from "@vercel/postgres"; // Stellen Sie sicher, dass @vercel/postgres installiert und konfiguriert ist
+import { sql } from "@vercel/postgres";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,7 +12,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Ersetzen Sie dies durch Ihre tatsächliche Logik zum Speichern des Benutzernamens in der Datenbank
     const result = await sql`INSERT INTO users (username) VALUES (${username}) RETURNING id`;
 
     if (result.count > 0) {
