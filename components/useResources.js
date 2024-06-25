@@ -11,7 +11,13 @@ export const useResourcesProvider = ({ children }) => {
   );
 };
 
-export const useResourcesContext = () => useContext(ResourcesContext);
+export const useResourcesContext = () => {
+  const context = useContext(ResourcesContext);
+  if (!context) {
+    throw new Error('useResourcesContext must be used within a ResourcesProvider');
+  }
+  return context;
+};
 
 const useResourcesLogic = () => {
   const [resources, setResources] = useState({
