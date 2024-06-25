@@ -27,7 +27,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('userId', data.userId); // Speichern der Benutzer-ID im lokalen Speicher
         router.push('/start');
       } else {
         const data = await response.json();

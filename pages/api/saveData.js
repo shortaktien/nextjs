@@ -9,8 +9,8 @@ export default async function handler(req, res) {
     }
 
     try {
-      await sql`INSERT INTO users (username) VALUES (${username})`;
-      return res.status(200).json({ message: 'Username saved successfully' });
+      const result = await sql`INSERT INTO users (username) VALUES (${username}) RETURNING id`;
+      return res.status(200).json({ message: 'Username saved successfully', userId: result.rows[0].id });
     } catch (error) {
       console.error('Error saving username:', error);
       return res.status(500).json({ error: 'Error saving username' });

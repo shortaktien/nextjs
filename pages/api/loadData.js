@@ -4,6 +4,8 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { userId } = req.query;
 
+    console.log('Received GET request with userId:', userId); // Debugging-Log
+
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
