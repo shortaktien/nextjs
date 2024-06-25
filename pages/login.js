@@ -27,11 +27,11 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('userId', data.userId); // Speichern der Benutzer-ID im lokalen Speicher
-        router.push('/start'); // Weiterleiten zur Startseite
+        router.push(`/start?userId=${data.userId}`); // Weiterleiten zur Startseite mit Benutzer-ID als Query-Parameter
       } else {
-        const data = await response.json();
-        setError(data.error);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        setError(errorText); // Fehler anzeigen
       }
     } catch (error) {
       console.error('Error saving username:', error);

@@ -3,14 +3,12 @@ import { useEffect, useState } from 'react';
 
 export default function StartPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+  const { userId } = router.query;
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setIsMounted(true);
     const fetchUsername = async () => {
-      const userId = localStorage.getItem('userId');
       if (userId) {
         try {
           const response = await fetch(`/api/loadData?userId=${userId}`);
@@ -18,8 +16,9 @@ export default function StartPage() {
             const data = await response.json();
             setUsername(data.username);
           } else {
-            const data = await response.json();
-            setError(data.error);
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            setError(errorText);
           }
         } catch (error) {
           console.error('Error fetching username:', error);
@@ -30,11 +29,7 @@ export default function StartPage() {
       }
     };
     fetchUsername();
-  }, [router]);
-
-  if (!isMounted) {
-    return null; // oder ein Loading Spinner
-  }
+  }, [userId, router]);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>

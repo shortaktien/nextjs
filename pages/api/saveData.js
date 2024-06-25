@@ -1,4 +1,4 @@
-import { sql } from "@vercel/postgres";
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,16 +12,19 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Attempting to insert username:', username);
     const result = await sql`INSERT INTO users (username) VALUES (${username}) RETURNING id`;
 
-    if (result.count > 0) {
-      const userId = result[0].id;
+    if (result.rowCount > 0) {
+      const userId = result.rows[0].id;
+      console.log('User inserted with ID:', userId);
       return res.status(200).json({ userId });
     } else {
+      console.error('Insert operation did not return any result:', result);
       return res.status(500).json({ error: 'Failed to save username' });
     }
   } catch (error) {
-    console.error('Error saving username:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error details:', error);
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 }
