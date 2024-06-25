@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import Header from '../components/Header'; // Korrekt importieren
+import Header from '../components/header'; // Korrekt importieren
 import Sidebar from '../components/sidebar';
 import { useResourcesContext } from '../components/useResources';
 

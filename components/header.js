@@ -1,5 +1,5 @@
 import React from 'react';
-import { useResourcesContext } from '../components/useResources';
+import { useResourcesContext } from './useResources';
 
 import foodImage from '../public/assets/foodImage.webp';
 import populationImage from '../public/assets/populationImage.webp';
