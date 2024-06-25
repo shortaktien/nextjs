@@ -13,7 +13,7 @@ export default function StartPage() {
       const userId = localStorage.getItem('userId');
       if (userId) {
         try {
-          const response = await fetch(`/api/getUsername?userId=${userId}`);
+          const response = await fetch(`/api/loadData?userId=${userId}`);
           if (response.ok) {
             const data = await response.json();
             setUsername(data.username);
