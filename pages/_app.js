@@ -1,5 +1,5 @@
 import '../styles/globals.css';
-import { useResourcesProvider } from '../components/useResource';
+import { useResourcesProvider } from '../components/useResources';
 
 function MyApp({ Component, pageProps }) {
   return (
