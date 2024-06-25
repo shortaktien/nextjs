@@ -8,15 +8,12 @@ export default function StartPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    const fetchUsername = async () => {
-      const storedUsername = localStorage.getItem('username');
-      if (storedUsername) {
-        setUsername(storedUsername);
-      } else {
-        router.push('/login');
-      }
-    };
-    fetchUsername();
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    } else {
+      router.push('/login');
+    }
   }, [router]);
 
   if (!isMounted) {
