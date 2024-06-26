@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+// Erstellen des Kontextes
 const ResourcesContext = createContext();
 
-export const useResourcesProvider = ({ children }) => {
+export const ResourcesProvider = ({ children }) => {
   const resources = useResourcesLogic();
   return (
     <ResourcesContext.Provider value={resources}>
@@ -11,13 +12,7 @@ export const useResourcesProvider = ({ children }) => {
   );
 };
 
-export const useResourcesContext = () => {
-  const context = useContext(ResourcesContext);
-  if (!context) {
-    throw new Error('useResourcesContext must be used within a ResourcesProvider');
-  }
-  return context;
-};
+export const useResourcesContext = () => useContext(ResourcesContext);
 
 const useResourcesLogic = () => {
   const [resources, setResources] = useState({
