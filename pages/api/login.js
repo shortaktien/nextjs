@@ -5,37 +5,47 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { username } = req.body;
+  const { address } = req.body;
 
-  if (!username) {
-    console.log('No username provided');
-    return res.status(400).json({ error: 'Username is required' });
+  if (!address) {
+    return res.status(400).json({ error: 'Address is required' });
   }
 
-  const formatDate = (date) => {
-    return date.toISOString().replace('T', ' ').substring(0, 19);
-  };
-
   try {
-    console.log('Attempting to login username:', username);
-
-    // Check if user already exists
-    const result = await sql`SELECT id FROM users WHERE username = ${username}`;
+    // Check if user exists
+    const userResult = await sql`
+      SELECT id FROM users WHERE username = ${address}
+    `;
     
-    if (result.rows && result.rows.length > 0) {
-      const userId = result.rows[0].id;
-      console.log('User exists with ID:', userId);
-      
-      // Update last login timestamp
-      const formattedDate = formatDate(new Date());
-      await sql`UPDATE users SET last_login = ${formattedDate} WHERE id = ${userId}`;
-      return res.status(200).json({ userId });
-    } else {
-      console.log('User not found');
+    if (userResult.rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    const userId = userResult.rows[0].id;
+
+    // Load resources, production rates, capacity rates, and building levels
+    const resourcesResult = await sql`
+      SELECT * FROM resources WHERE user_id = ${userId}
+    `;
+    const productionRatesResult = await sql`
+      SELECT * FROM production_rates WHERE user_id = ${userId}
+    `;
+    const capacityRatesResult = await sql`
+      SELECT * FROM capacity_rates WHERE user_id = ${userId}
+    `;
+    const buildingsResult = await sql`
+      SELECT * FROM buildings WHERE user_id = ${userId}
+    `;
+
+    res.status(200).json({
+      userId,
+      resources: resourcesResult.rows[0],
+      productionRates: productionRatesResult.rows[0],
+      capacityRates: capacityRatesResult.rows[0],
+      buildings: buildingsResult.rows
+    });
   } catch (error) {
     console.error('Error logging in:', error);
-    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }

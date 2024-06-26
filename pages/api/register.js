@@ -5,38 +5,60 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { username } = req.body;
+  const { address } = req.body;
 
-  if (!username) {
-    console.log('No username provided');
-    return res.status(400).json({ error: 'Username is required' });
+  if (!address) {
+    return res.status(400).json({ error: 'Address is required' });
   }
 
-  const formatDate = (date) => {
-    return date.toISOString().replace('T', ' ').substring(0, 19);
-  };
-
   try {
-    console.log('Attempting to insert username:', username);
-    const formattedDate = formatDate(new Date());
-    const result = await sql`INSERT INTO users (username, last_login) VALUES (${username}, ${formattedDate}) RETURNING id`;
-    console.log('Insert result:', result);
+    // Check if user exists
+    const userResult = await sql`
+      SELECT id FROM users WHERE username = ${address}
+    `;
     
-    if (result.rows && result.rows.length > 0) {
-      const userId = result.rows[0].id;
-      if (userId) {
-        console.log('User inserted with ID:', userId);
-        return res.status(200).json({ userId });
-      } else {
-        console.log('Insert operation did not return a valid ID');
-        return res.status(500).json({ error: 'Failed to save username' });
-      }
-    } else {
-      console.log('Insert operation did not return any result');
-      return res.status(500).json({ error: 'Failed to save username' });
+    if (userResult.rowCount > 0) {
+      return res.status(400).json({ error: 'User already exists' });
     }
+
+    // Insert new user
+    const newUser = await sql`
+      INSERT INTO users (username)
+      VALUES (${address})
+      RETURNING id
+    `;
+    const userId = newUser.rows[0].id;
+
+    // Initialize resources
+    await sql`
+      INSERT INTO resources (user_id)
+      VALUES (${userId})
+    `;
+
+    // Initialize production rates
+    await sql`
+      INSERT INTO production_rates (user_id)
+      VALUES (${userId})
+    `;
+
+    // Initialize capacity rates
+    await sql`
+      INSERT INTO capacity_rates (user_id)
+      VALUES (${userId})
+    `;
+
+    // Initialize buildings
+    const initialBuildings = [1, 2]; // Example building IDs
+    for (const buildingId of initialBuildings) {
+      await sql`
+        INSERT INTO buildings (user_id, building_id)
+        VALUES (${userId}, ${buildingId})
+      `;
+    }
+
+    res.status(201).json({ message: 'User registered successfully', userId });
   } catch (error) {
     console.error('Error saving username:', error);
-    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }

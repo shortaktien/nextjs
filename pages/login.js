@@ -1,88 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Web3 from 'web3';
 import { useRouter } from 'next/router';
 
-export default function LoginPage() {
+const LoginPage = () => {
   const [address, setAddress] = useState('');
-  const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const connectMetaMask = async () => {
-      if (window.ethereum) {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          setAddress(accounts[0]);
-        } catch (error) {
-          console.error('Error connecting MetaMask:', error);
-          setError('Error connecting MetaMask');
-        }
-      } else {
-        console.error('MetaMask not found');
-        setError('MetaMask not found');
-      }
-    };
+  const handleLogin = async () => {
+    if (!window.ethereum) {
+      alert('Please install Metamask!');
+      return;
+    }
 
-    connectMetaMask();
-  }, []);
-
-  const handleRegister = async () => {
+    const web3 = new Web3(window.ethereum);
     try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const userAddress = accounts[0];
+      setAddress(userAddress);
+      console.log('Connected to', userAddress);
+
+      // Register or login the user
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username: address }),
+        body: JSON.stringify({ address: userAddress })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        router.push(`/start?userId=${data.userId}`);
-      } else {
-        const errorText = await response.text();
-        setError(errorText);
-        console.error('Error response:', errorText);
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error response:', error);
+        return;
       }
-    } catch (error) {
-      console.error('Error saving username:', error);
-      setError('Error saving username');
-    }
-  };
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: address }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        router.push(`/start?userId=${data.userId}`);
-      } else {
-        const errorText = await response.text();
-        setError(errorText);
-        console.error('Error response:', errorText);
-      }
+      const data = await response.json();
+      console.log('Login/Register success:', data);
+      router.push('/start');
     } catch (error) {
-      console.error('Error logging in:', error);
-      setError('Error logging in');
+      console.error('Error connecting to Metamask:', error);
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-      <h1>Login/Register</h1>
-      <button onClick={handleRegister} style={{ padding: '10px 20px', fontSize: '16px', marginBottom: '10px' }}>
-        Register
-      </button>
-      <button onClick={handleLogin} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        Login
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div>
+      <h1>Login</h1>
+      <button onClick={handleLogin}>Login with Metamask</button>
+      {address && <p>Connected address: {address}</p>}
     </div>
   );
-}
+};
+
+export default LoginPage;
