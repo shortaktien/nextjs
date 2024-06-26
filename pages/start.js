@@ -6,20 +6,6 @@ import { BuildingsProvider } from '../contexts/buildingsContext';
 import { ResourcesProvider, useResourcesContext } from '../components/useResources';
 import styles from '../styles/start.module.css';
 
-const ProductionRates = () => {
-  const { productionRates } = useResourcesContext();
-
-  return (
-    <div className={styles.productionRatesContainer}>
-      {Object.entries(productionRates).map(([resource, rate]) => (
-        <div key={resource} className={styles.productionRate}>
-          {resource}: {rate.toFixed(5)}/s
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const StartPage = () => {
   const [activeComponent, setActiveComponent] = useState('stats');
 
@@ -29,11 +15,7 @@ const StartPage = () => {
         return <Buildings />;
       case 'stats':
       default:
-        return (
-          <div className={styles.statsContainer}>
-            <ProductionRates />
-          </div>
-        );
+        return <Stats />;
     }
   };
 
@@ -51,6 +33,24 @@ const StartPage = () => {
         </div>
       </BuildingsProvider>
     </ResourcesProvider>
+  );
+};
+
+const Stats = () => {
+  const { getNetProductionRates } = useResourcesContext();
+  const productionRates = getNetProductionRates();
+
+  return (
+    <div className={styles.statsContainer}>
+      <h2>Current Production Rates</h2>
+      <ul>
+        {Object.entries(productionRates).map(([resource, rate]) => (
+          <li key={resource}>
+            {resource}: {Math.floor(rate * 3600)} per hour
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

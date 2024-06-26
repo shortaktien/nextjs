@@ -29,6 +29,7 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
+
       <div className={styles.resourcesContainer}>
         {Object.entries(resources).map(([resource, amount]) => (
           <div key={resource} className={styles.resource}>
