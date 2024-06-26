@@ -3,7 +3,22 @@ import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 import Buildings from '../components/buildings';
 import { BuildingsProvider } from '../contexts/buildingsContext';
+import { ResourcesProvider, useResourcesContext } from '../components/useResources';
 import styles from '../styles/start.module.css';
+
+const ProductionRates = () => {
+  const { productionRates } = useResourcesContext();
+
+  return (
+    <div className={styles.productionRatesContainer}>
+      {Object.entries(productionRates).map(([resource, rate]) => (
+        <div key={resource} className={styles.productionRate}>
+          {resource}: {rate.toFixed(5)}/s
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const StartPage = () => {
   const [activeComponent, setActiveComponent] = useState('stats');
@@ -14,22 +29,28 @@ const StartPage = () => {
         return <Buildings />;
       case 'stats':
       default:
-        return <div className={styles.statsContainer}>Stats content goes here</div>;
+        return (
+          <div className={styles.statsContainer}>
+            <ProductionRates />
+          </div>
+        );
     }
   };
 
   return (
-    <BuildingsProvider>
-      <div className={styles.pageContainer}>
-        <Header />
-        <div className={styles.mainContent}>
-          <Sidebar setActiveComponent={setActiveComponent} />
-          <div className={styles.contentContainer}>
-            {renderComponent()}
+    <ResourcesProvider>
+      <BuildingsProvider>
+        <div className={styles.pageContainer}>
+          <Header />
+          <div className={styles.mainContent}>
+            <Sidebar setActiveComponent={setActiveComponent} />
+            <div className={styles.contentContainer}>
+              {renderComponent()}
+            </div>
           </div>
         </div>
-      </div>
-    </BuildingsProvider>
+      </BuildingsProvider>
+    </ResourcesProvider>
   );
 };
 

@@ -29,7 +29,6 @@ const initialBuildings = [
 
 export const BuildingsProvider = ({ children }) => {
   const [buildings, setBuildings] = useState(initialBuildings);
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   const levelUpBuilding = (id) => {
     setBuildings(prevBuildings =>
@@ -41,12 +40,8 @@ export const BuildingsProvider = ({ children }) => {
     );
   };
 
-  const selectBuilding = (building) => {
-    setSelectedBuilding(building);
-  };
-
   return (
-    <BuildingsContext.Provider value={{ buildings, selectedBuilding, levelUpBuilding, selectBuilding }}>
+    <BuildingsContext.Provider value={{ buildings, levelUpBuilding }}>
       {children}
     </BuildingsContext.Provider>
   );

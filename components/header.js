@@ -1,6 +1,6 @@
+// components/header.js
 import React from 'react';
 import { useResourcesContext } from '../components/useResources';
-import Image from 'next/image';
 import styles from '../styles/header.module.css';
 import waterImage from '../public/assets/waterImage.webp';
 import foodImage from '../public/assets/foodImage.webp';
@@ -32,7 +32,7 @@ const Header = () => {
       <div className={styles.resourcesContainer}>
         {Object.entries(resources).map(([resource, amount]) => (
           <div key={resource} className={styles.resource}>
-            <Image src={resourceImages[resource]} alt={resource} className={styles.resourceImage} width={24} height={24} />
+            <img src={resourceImages[resource].src} alt={resource} className={styles.resourceImage} />
             <span className={styles.resourceName}></span> {Math.floor(amount)}
           </div>
         ))}
