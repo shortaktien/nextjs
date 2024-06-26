@@ -10,9 +10,11 @@ const BuildingDetails = ({ building, onBack }) => {
   const [currentBuilding, setCurrentBuilding] = useState(building);
 
   useEffect(() => {
-    const updatedBuilding = buildings.find(b => b.id === building.id);
-    setCurrentBuilding(updatedBuilding);
-  }, [buildings, building.id]);
+    if (building && building.id) {
+      const updatedBuilding = buildings.find(b => b.id === building.id);
+      setCurrentBuilding(updatedBuilding);
+    }
+  }, [buildings, building?.id]);
 
   if (!currentBuilding) return null;
 
@@ -23,6 +25,10 @@ const BuildingDetails = ({ building, onBack }) => {
   };
 
   const canBuild = Object.entries(nextCost).every(([resource, amount]) => resources[resource] >= amount);
+
+  const currentProduction = currentBuilding.baseProduction?.wood 
+    ? currentBuilding.baseProduction.wood * Math.pow(1.1, currentBuilding.currentLevel)
+    : 0;
 
   return (
     <div className={styles.container}>
@@ -41,6 +47,10 @@ const BuildingDetails = ({ building, onBack }) => {
               </li>
             ))}
           </ul>
+        </div>
+        <div className={styles.production}>
+          <h3>Current Production:</h3>
+          <p>{currentProduction.toFixed(2)} wood per second</p>
         </div>
         <button className={styles.button} onClick={onBack}>Back</button>
         <button className={styles.button} onClick={() => handleBuild(currentBuilding.id)} disabled={!canBuild}>Build</button>

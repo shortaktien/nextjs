@@ -25,7 +25,11 @@ const Buildings = () => {
               className={styles.buildingItem}
               onClick={() => setSelectedBuilding(building)}
             >
-              <img src={building.image.src} alt={building.name} className={styles.buildingThumbnail} />
+              <img 
+                src={building.image?.src || building.image} 
+                alt={building.name} 
+                className={styles.buildingThumbnail} 
+              />
               <span>{building.name}</span>
             </button>
           ))}

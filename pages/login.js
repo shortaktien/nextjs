@@ -7,46 +7,58 @@ const LoginPage = () => {
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!window.ethereum) {
-      alert('Please install Metamask!');
+    if (!address) {
+      alert('Please connect to MetaMask');
       return;
     }
 
-    const web3 = new Web3(window.ethereum);
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const userAddress = accounts[0];
-      setAddress(userAddress);
-      console.log('Connected to', userAddress);
-
-      // Register or login the user
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ address: userAddress })
+        body: JSON.stringify({ address })
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Error response:', error);
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User data:', data);
+        router.push('/start');
+      } else {
+        console.error('Error response:', await response.json());
       }
-
-      const data = await response.json();
-      console.log('Login/Register success:', data);
-      router.push('/start');
     } catch (error) {
-      console.error('Error connecting to Metamask:', error);
+      console.error('Error connecting to MetaMask:', error);
+    }
+  };
+
+  const connectMetamask = async () => {
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      try {
+        await window.ethereum.enable();
+        const accounts = await web3.eth.getAccounts();
+        setAddress(accounts[0]);
+        console.log('Connected to MetaMask:', accounts[0]);
+      } catch (error) {
+        console.error('User denied account access', error);
+      }
+    } else {
+      console.error('Non-Ethereum browser detected. You should consider trying MetaMask!');
     }
   };
 
   return (
     <div>
       <h1>Login</h1>
-      <button onClick={handleLogin}>Login with Metamask</button>
-      {address && <p>Connected address: {address}</p>}
+      <button onClick={connectMetamask}>Connect MetaMask</button>
+      {address && (
+        <div>
+          <p>Connected to {address}</p>
+          <button onClick={handleLogin}>Login</button>
+        </div>
+      )}
     </div>
   );
 };
