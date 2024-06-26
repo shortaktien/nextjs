@@ -1,0 +1,77 @@
+/* styles/buildings.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.imageContainer {
+  margin-bottom: 10px;
+}
+
+.buildingImage {
+  width: 100%;
+  height: auto;
+}
+
+.infoContainer {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.button {
+  background-color: yellow;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.buildingsOverview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mainImageContainer {
+  width: 80%;
+  margin-bottom: 20px;
+}
+
+.buildingsList {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.buildingThumbnail {
+  position: relative;
+  cursor: pointer;
+  width: 150px;
+  height: 150px;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.thumbnailOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 0 0 10px 10px;
+}

@@ -1,50 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Header from '../components/header'; // Korrekt importieren
+import React, { useState } from 'react';
+import Header from '../components/header';
 import Sidebar from '../components/sidebar';
-import { useResourcesContext } from '../components/useResources';
+import Buildings from '../components/buildings';
+import { BuildingsProvider } from '../contexts/buildingsContext';
+import styles from '../styles/start.module.css';
 
 const StartPage = () => {
-  const router = useRouter();
-  const { resources } = useResourcesContext();
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState('');
+  const [activeComponent, setActiveComponent] = useState('stats');
 
-  useEffect(() => {
-    const fetchUsername = async () => {
-      const userId = router.query.userId;
-      if (userId) {
-        try {
-          const response = await fetch(`/api/loadData?userId=${userId}`);
-          if (response.ok) {
-            const data = await response.json();
-            setUsername(data.username);
-          } else {
-            const errorText = await response.text();
-            setError(errorText);
-          }
-        } catch (error) {
-          setError('Error fetching username');
-        }
-      } else {
-        router.push('/login');
-      }
-    };
-    fetchUsername();
-  }, [router.query.userId, router]);
+  const renderComponent = () => {
+    switch (activeComponent) {
+      case 'buildings':
+        return <Buildings />;
+      case 'stats':
+      default:
+        return <div className={styles.statsContainer}>Stats content goes here</div>;
+    }
+  };
 
   return (
-    <div>
-      <Header />
-      <div style={{ display: 'flex' }}>
-        <Sidebar />
-        <div style={{ flex: 1, backgroundColor: '#28a745', padding: '10px' }}>
-          <h1>Welcome to the Start Page</h1>
-          {username && <p>Username: {username}</p>}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+    <BuildingsProvider>
+      <div className={styles.pageContainer}>
+        <Header />
+        <div className={styles.mainContent}>
+          <Sidebar setActiveComponent={setActiveComponent} />
+          <div className={styles.contentContainer}>
+            {renderComponent()}
+          </div>
         </div>
       </div>
-    </div>
+    </BuildingsProvider>
   );
 };
 

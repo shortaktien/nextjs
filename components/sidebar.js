@@ -1,22 +1,33 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 
-const Sidebar = () => {
-  const router = useRouter();
-
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
-
+const Sidebar = ({ setActiveComponent }) => {
   return (
-    <aside style={{ width: '200px', backgroundColor: '#007bff', height: '100vh', padding: '10px' }}>
-      <ul>
-        <li onClick={() => handleNavigation('/path1')}>Option 1</li>
-        <li onClick={() => handleNavigation('/path2')}>Option 2</li>
-        <li onClick={() => handleNavigation('/path3')}>Option 3</li>
+    <aside style={styles.sidebar}>
+      <ul style={styles.menu}>
+        <li style={styles.menuItem} onClick={() => setActiveComponent('stats')}>Stats</li>
+        <li style={styles.menuItem} onClick={() => setActiveComponent('buildings')}>Buildings</li>
       </ul>
     </aside>
   );
+};
+
+const styles = {
+  sidebar: {
+    width: '200px',
+    height: 'calc(100vh - 80px)', // Full height minus the header height
+    backgroundColor: 'blue',
+    padding: '10px',
+    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
+  },
+  menu: {
+    listStyleType: 'none',
+    padding: 0,
+  },
+  menuItem: {
+    padding: '10px',
+    color: 'white',
+    cursor: 'pointer',
+  },
 };
 
 export default Sidebar;
