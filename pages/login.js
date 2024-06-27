@@ -1,4 +1,3 @@
-// pages/login.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -22,8 +21,9 @@ const LoginPage = () => {
 
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('userId', data.userId); // Speichere die Benutzer-ID
-      router.push('/start'); // Weiter zur Startseite
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('userAddress', address); // Speichere die Benutzeradresse
+      router.push('/start');
     } else {
       const error = await response.json();
       alert(error.message);

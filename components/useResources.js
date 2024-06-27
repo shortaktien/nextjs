@@ -83,7 +83,7 @@ const useResources = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const netProduction = calculateNetProduction(productionRates);
-      console.log('Net production rates:', netProduction);
+      //console.log('Net production rates:', netProduction);
       setResources(prevResources => {
         const newResources = {
           water: Math.min(Math.max(prevResources.water + netProduction.water, 0), capacityRates.water),

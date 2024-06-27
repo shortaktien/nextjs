@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useResourcesContext } from '../components/useResources';
-import lumberjackImage from '../public/assets/lumberjackImage.webp';
-import stonemasonImage from '../public/assets/stonemasonImage.webp';
 
 const BuildingsContext = createContext();
 
@@ -9,7 +7,7 @@ const initialBuildings = [
   {
     id: 1,
     name: 'Lumberjack',
-    image: '/assets/lumberjackImage.webp',
+    image: '/assets/lumberjackImage.webp', // Replace with actual image path
     baseCost: { wood: 50, population: 1 },
     baseProduction: { wood: 33 / 3600 },
     baseBuildTime: 5,
@@ -19,7 +17,7 @@ const initialBuildings = [
   {
     id: 2,
     name: 'Stonemason',
-    image: '/assets/stonemasonImage.webp',
+    image: '/assets/stonemasonImage.webp', // Replace with actual image path
     baseCost: { wood: 50, population: 1 },
     baseProduction: { stone: 29 / 3600 },
     baseBuildTime: 6,
@@ -77,6 +75,19 @@ export const BuildingsProvider = ({ children }) => {
     );
   };
 
+  const saveGame = async () => {
+    await fetch('/api/saveGame', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: localStorage.getItem('userId'),
+        resources
+      })
+    });
+  };
+
   const handleBuild = async (id) => {
     const building = buildings.find(b => b.id === id);
     const cost = {
@@ -92,8 +103,16 @@ export const BuildingsProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userId: localStorage.getItem('userId'), buildingId: id, newLevel: building.currentLevel + 1 })
+        body: JSON.stringify({
+          userId: localStorage.getItem('userId'),
+          buildingId: id,
+          newLevel: building.currentLevel + 1,
+          newResources: resources // Speichern Sie die aktualisierten Ressourcen
+        })
       });
+
+      // Save game after building
+      saveGame();
     } else {
       alert('Not enough resources');
     }

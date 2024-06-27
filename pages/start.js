@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/header';
 import Sidebar from '../components/sidebar';
 import Buildings from '../components/buildings';
+import AdminPanel from '../components/AdminPanel';
 import { BuildingsProvider } from '../contexts/buildingsContext';
-import { ResourcesProvider, useResourcesContext } from '../components/useResources';
+import { ResourcesProvider } from '../components/useResources';
 import styles from '../styles/start.module.css';
 
 const StartPage = () => {
   const [activeComponent, setActiveComponent] = useState('stats');
 
+  useEffect(() => {
+    const userAddress = localStorage.getItem('userAddress');
+    if (userAddress) {
+      console.log(`Login as: ${userAddress}`);
+    }
+  }, []);
+
   const renderComponent = () => {
     switch (activeComponent) {
       case 'buildings':
         return <Buildings />;
+      case 'admin':
+        return <AdminPanel />;
       case 'stats':
       default:
-        return <Stats />;
+        return <div className={styles.statsContainer}>Stats content goes here</div>;
     }
   };
 
@@ -33,24 +43,6 @@ const StartPage = () => {
         </div>
       </BuildingsProvider>
     </ResourcesProvider>
-  );
-};
-
-const Stats = () => {
-  const { getNetProductionRates } = useResourcesContext();
-  const productionRates = getNetProductionRates();
-
-  return (
-    <div className={styles.statsContainer}>
-      <h2>Current Production Rates</h2>
-      <ul>
-        {Object.entries(productionRates).map(([resource, rate]) => (
-          <li key={resource}>
-            {resource}: {Math.floor(rate * 3600)} per hour
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 };
 

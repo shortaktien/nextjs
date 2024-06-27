@@ -7,6 +7,10 @@ export default async function handler(req, res) {
 
   const { userId } = req.body;
 
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
   try {
     const buildingsResult = await sql`
       SELECT * FROM buildings WHERE user_id = ${userId}
