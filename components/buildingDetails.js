@@ -1,3 +1,4 @@
+// components/buildingDetails.js
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useBuildings } from '../contexts/buildingsContext';

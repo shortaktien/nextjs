@@ -1,5 +1,5 @@
+// pages/login.js
 import React, { useState } from 'react';
-import Web3 from 'web3';
 import { useRouter } from 'next/router';
 
 const LoginPage = () => {
@@ -8,57 +8,38 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     if (!address) {
-      alert('Please connect to MetaMask');
+      alert('Please enter your address');
       return;
     }
 
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ address })
-      });
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ address }),
+    });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User data:', data);
-        router.push('/start');
-      } else {
-        console.error('Error response:', await response.json());
-      }
-    } catch (error) {
-      console.error('Error connecting to MetaMask:', error);
-    }
-  };
-
-  const connectMetamask = async () => {
-    if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      try {
-        await window.ethereum.enable();
-        const accounts = await web3.eth.getAccounts();
-        setAddress(accounts[0]);
-        console.log('Connected to MetaMask:', accounts[0]);
-      } catch (error) {
-        console.error('User denied account access', error);
-      }
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem('userId', data.userId); // Speichere die Benutzer-ID
+      router.push('/start'); // Weiter zur Startseite
     } else {
-      console.error('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      const error = await response.json();
+      alert(error.message);
     }
   };
 
   return (
     <div>
       <h1>Login</h1>
-      <button onClick={connectMetamask}>Connect MetaMask</button>
-      {address && (
-        <div>
-          <p>Connected to {address}</p>
-          <button onClick={handleLogin}>Login</button>
-        </div>
-      )}
+      <input
+        type="text"
+        placeholder="Enter your address"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
 };
